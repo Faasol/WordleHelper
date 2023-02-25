@@ -3,6 +3,7 @@ import operator
 from tqdm import tqdm
 from tabulate import tabulate
 from constant import *
+import json
 
 def isMatchMultipleLetters(word, guess, pattern, index):
     for i in range(len(pattern)):
@@ -109,7 +110,11 @@ def printTable(entropy):
 def main():
     pattern = ""
     possibleSolutions = list(WORDS)
-    entropy = []
+    f = open('data/entropy.json')
+    entropy = json.load(f)
+    f.close()
+    print("Suggestions:")
+    printTable(entropy)
     attempt = 0
     while pattern != "ggggg" and attempt < MAX_ATTEMPT:
         guess = input("Insert guess: ")
