@@ -128,8 +128,6 @@ def main():
             print("\nComputing entropy...")
             entropy = allEntropy(possibleSolutions)
             printTable(entropy)
-            
-    print("Hai indovinato la parola!")
 
 if __name__ == '__main__':    
     main()
