@@ -4,6 +4,42 @@ from tqdm import tqdm
 from tabulate import tabulate
 from constant import *
 
+def isMatchMultipleLetters(word, guess, pattern, index):
+    for i in range(len(pattern)):
+        if pattern[i] == 'b' and i not in index:
+            if guess[i] in word:
+                return False
+        else:
+            if pattern[i] == 'g' and i not in index:
+                if guess[i] != word[i]:
+                    return False
+            else:
+                if (guess[i] not in word or guess[i] == word[i]) and i not in index:
+                    return False
+    return True
+
+def getIndex(guess, char):
+    index = []
+    for i in range(len(guess)):
+        if guess[i] == char:
+            index.append(i)
+    return index
+
+def checkMultipleLetters(guess, pattern):
+    aux = ""
+    for char in guess:
+        if deleteWords(guess, char):
+            aux = char 
+    index = getIndex(guess, aux)
+    if index != []:
+        if (pattern[index[0]] == 'b' and pattern[index[1]] != 'b') or (pattern[index[1]] == 'b' and pattern[index[0]] != 'b'):
+            return aux
+        return ""    
+    return ""     
+    
+def deleteWords(word, char):
+    return word.count(char) > 1   
+
 def isMatch(word, guess, pattern):            
     for i in range(len(pattern)):
         if pattern[i] == 'b':
@@ -18,15 +54,27 @@ def isMatch(word, guess, pattern):
                     return False
     return True
 
-def findSolutions(words, guess, pattern):
+def findSolutions(words, guess, pattern, flag):
+    if flag:
+        char = checkMultipleLetters(guess, pattern)  
     result = []
     for word in words:
-        if isMatch(word, guess, pattern):
-            result.append(word)
+        if flag:
+            if char == "":
+                if isMatch(word, guess, pattern):
+                    result.append(word)
+            else:
+                if not deleteWords(word, char):
+                    index = getIndex(guess, char)
+                    if isMatchMultipleLetters(word, guess, pattern, index):
+                        result.append(word)
+        else:
+            if isMatch(word, guess, pattern):
+                result.append(word)
     return result
 
 def getProbabilitySolutions(words, guess, pattern):
-    result = findSolutions(words, guess, pattern)
+    result = findSolutions(words, guess, pattern, False)
     if result == []:
         return 0
     return len(result)/len(words)
@@ -75,7 +123,7 @@ def main():
             pattern = input("ERROR: pattern not allowed.\nInsert pattern: ")
             pattern = pattern.lower()
         if pattern != "ggggg":
-            possibleSolutions = findSolutions(possibleSolutions, guess, pattern)
+            possibleSolutions = findSolutions(possibleSolutions, guess, pattern, True)
             attempt = attempt + 1
             print("\nComputing entropy...")
             entropy = allEntropy(possibleSolutions)
